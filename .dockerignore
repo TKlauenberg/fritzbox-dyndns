@@ -1,0 +1,23 @@
+# Ignore development and build-related files
+node_modules/
+dist/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Ignore editor-specific files
+.vscode/
+.idea/
+
+# Ignore source control files
+.git/
+.gitignore
+
+# Ignore configuration files
+.DS_Store
+.env
+
+# Ignore any other unnecessary files or directories
+tmp/
+logs/
+*.log
