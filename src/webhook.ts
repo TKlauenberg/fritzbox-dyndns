@@ -16,7 +16,8 @@ app.use(async (ctx, next) => {
   console.log('Received webhook request');
   console.log('url: ' + ctx.url);
   console.log('headers : ' + JSON.stringify(ctx.headers));
-  console.log('body: ' + ctx.request.rawBody);
+  console.log('rawbody: ' + ctx.request.rawBody);
+  console.log('body: ' + ctx.request.body);
   ctx.status = 200;
   ctx.body = 'Webhook received successfully';
 });
