@@ -1,5 +1,6 @@
 import Koa from 'koa';
 import Router from 'koa-router';
+import bodyParser from 'koa-bodyparser';
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file
@@ -8,12 +9,14 @@ dotenv.config();
 const app = new Koa();
 const router = new Router();
 
+app.use(bodyParser());
+
 app.use(async (ctx, next) => {
   // Handle the webhook request here
   console.log('Received webhook request');
   console.log('url: ' + ctx.url);
   console.log('headers : ' + JSON.stringify(ctx.headers));
-  console.log('body: ' + ctx.body);
+  console.log('body: ' + ctx.request.rawBody);
   ctx.status = 200;
   ctx.body = 'Webhook received successfully';
 });
