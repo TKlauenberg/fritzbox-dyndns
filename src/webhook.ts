@@ -9,7 +9,7 @@ dotenv.config();
 const app = new Koa();
 const router = new Router();
 
-app.use(bodyParser());
+app.use(bodyParser({enableTypes: ['json', 'form', 'xml']}));
 
 app.use(async (ctx, next) => {
   // Handle the webhook request here
