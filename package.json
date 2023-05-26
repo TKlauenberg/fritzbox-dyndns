@@ -32,6 +32,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@kubernetes/client-node": "^0.18.1",
     "digest-fetch": "^3.0.4",
     "dotenv": "^16.0.3",
     "fast-xml-parser": "^4.2.2",
