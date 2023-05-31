@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import * as EventEmitter from "events";
 import { Server } from "http";
 
 type PossibleConnectionTypes = { PossibleConnectionTypes: string };
@@ -46,15 +46,16 @@ type IPV6SoapResponse = {
 };
 
 export async function subscribe(fritzboxEndpoint: string, ownEndpoint: string): Promise<string> {
+  // TODO implement
   return "";
 }
 
 export async function unsubscribe(fritzboxEndpoint: string, uuid: string) {
-
+  // TODO implement
 }
 
 export declare interface IPV6PraefixSubscription{
-  on(event: 'praefix-changed', listener: (praefix: string) => void): this;
+  on(event: 'praefix-changed', listener: (praefix: {praefix: string, length: number}) => void): this;
   on(event: string, listener: Function): this;
 }
 
@@ -62,18 +63,19 @@ export class IPV6PraefixSubscription extends EventEmitter{
   #fritzboxBaseUrl: string;
   #ingressIp: string;
   #service?: Server;
-  constructor(fritzboxBasrUrl: string, ingressIp: string) {
+  constructor(fritzboxBasrUrl: string) {
     super();
     this.#fritzboxBaseUrl = fritzboxBasrUrl;
-    this.#ingressIp = ingressIp;
+    this.#ingressIp = '';
+    this.#createService();
   }
   async changeSubscription(newIngressIp: string) {
-
+    // TODO implement
   }
   async #createService() {
-
+    // TODO implement
   }
   async stopService() {
-
+    // TODO implement
   }
 }

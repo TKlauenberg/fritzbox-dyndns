@@ -1,0 +1,11 @@
+{
+  "loglevel": "info",
+  "fritzbox": {
+    "endpoint": "http://fritz.box:49000"
+  },
+  "dyndns": {
+    "user": "test",
+    "password": "password",
+    "endpoint": "http://example.com"
+  }
+}
