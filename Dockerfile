@@ -31,4 +31,4 @@ ENV PORT 8080
 EXPOSE $PORT
 
 # Set the command to run when the container starts
-CMD ["node", "dist/webhook.js"]
+CMD ["node", "dist/index.js"]
