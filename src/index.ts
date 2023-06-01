@@ -1,5 +1,5 @@
 import * as k8s from '@kubernetes/client-node';
-import { IPV6PraefixSubscription } from './fritzbox';
+import { IPV6PrefixSubscription } from './fritzbox';
 import * as config from 'config';
 import { KubeHandler } from './kubernetes';
 import { getLogger } from './logger';
@@ -12,7 +12,7 @@ kc.loadFromDefault();
 
 const k8sApi = kc.makeApiClient(k8s.NetworkingV1Api);
 
-const praefixSubscription = new IPV6PraefixSubscription(
+const prefixSubscription = new IPV6PrefixSubscription(
   config.get('fritzbox.endpoint'),
 );
 const kubeHandler = new KubeHandler(k8sApi);
@@ -34,16 +34,13 @@ const state = {
  * create kubernetes and fritzbox objects
  * create event listeners
  */
-function createNewIpAddressRange(praefix: string, length: number): string {
+function createNewIpAddressRange(prefix: string, length: number): string {
   // TODO implement
   return '';
 }
-// praefixSubscription event handlers
-praefixSubscription.on('praefix-changed', (praefix) => {
-  const ipAddressRange = createNewIpAddressRange(
-    praefix.praefix,
-    praefix.length,
-  );
+// prefixSubscription event handlers
+prefixSubscription.on('prefix-changed', (prefix) => {
+  const ipAddressRange = createNewIpAddressRange(prefix.prefix, prefix.length);
   logger.info(`new addressrange is: ${ipAddressRange}`);
   kubeHandler.changeIpAddressRange(ipAddressRange);
 });
@@ -87,7 +84,7 @@ kubeHandler.on('ingress-changed', async (ingress) => {
       );
       return;
     }
-    await praefixSubscription.changeSubscription(ip);
+    await prefixSubscription.changeSubscription(ip);
   } else if (isIngressUsedForDynDNS(ingress)) {
     const ip = getIp(ingress);
     const hostname = getHostname(ingress);
@@ -100,7 +97,7 @@ kubeHandler.on('ingress-changed', async (ingress) => {
         `could not get hostname of ingress ${ingress.metadata?.namespace}/${ingress.metadata?.name}`,
       );
     } else {
-      updateHostname(hostname, ip);
+      await updateHostname(hostname, ip);
     }
   }
 });
@@ -110,4 +107,6 @@ async function initialize() {
    * 1. wait for ingress to be ready
    * 2. start service
    */
+  // TODO implement
+  prefixSubscription.createService('');
 }
