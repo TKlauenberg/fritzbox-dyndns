@@ -1,8 +1,8 @@
-import * as EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import * as k8s from '@kubernetes/client-node';
 import { getLogger } from './logger.js';
 
-const logger = getLogger(__dirname, __filename);
+const logger = getLogger(import.meta.url);
 
 export declare interface KubeHandler {
   // TODO implement

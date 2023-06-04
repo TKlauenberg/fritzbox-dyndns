@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston';
-import * as config from 'config';
+import config from 'config';
 
 const logger = createLogger({
   level: config.get('loglevel'),
@@ -7,6 +7,6 @@ const logger = createLogger({
   transports: [new transports.Console()],
 });
 
-export function getLogger(dirname: string, filename: string) {
-  return logger.child({ dirname, filename });
+export function getLogger(url: string) {
+  return logger.child({ url });
 }

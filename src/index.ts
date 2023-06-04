@@ -1,11 +1,11 @@
 import * as k8s from '@kubernetes/client-node';
-import { IPV6PrefixSubscription } from './fritzbox';
-import * as config from 'config';
-import { KubeHandler } from './kubernetes';
-import { getLogger } from './logger';
-import { updateHostname as updateHostnameDyndns } from './dyndns';
+import config from 'config';
+import { updateHostname as updateHostnameDyndns } from './dyndns.js';
+import { IPV6PrefixSubscription } from './fritzbox.js';
+import { KubeHandler } from './kubernetes.js';
+import { getLogger } from './logger.js';
 
-const logger = getLogger(__dirname, __filename);
+const logger = getLogger(import.meta.url);
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -108,5 +108,6 @@ async function initialize() {
    * 2. start service
    */
   // TODO implement
-  prefixSubscription.createService('');
+  await prefixSubscription.createService('');
 }
+initialize();

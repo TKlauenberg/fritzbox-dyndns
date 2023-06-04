@@ -7,7 +7,8 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "moduleResolution": "node",
+    "module": "es2022",
+    "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
     "incremental": true

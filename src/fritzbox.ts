@@ -1,9 +1,9 @@
-import * as EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import { Server } from 'http';
 import * as xml from 'fast-xml-parser';
-import { getLogger } from './logger';
+import { getLogger } from './logger.js';
 
-const logger = getLogger(__dirname, __filename);
+const logger = getLogger(import.meta.url);
 
 type PossibleConnectionTypes = { PossibleConnectionTypes: string };
 type ConnectionStatus = { ConnectionStatus: string };
@@ -25,7 +25,7 @@ type Property =
   | PortMappingNumberOfEntries;
 
 const ipv6RequestStatic =
-  '<s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><u:X_AVM_DE_GetIPv6Prefix><xmlns:u>urn:schemas-upnp-org:service:WANIPConnection:1</xmlns:u></u:X_AVM_DE_GetIPv6Prefix></s:Body></s:Envelope>';
+  '<?xml version="1.0"?><s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><u:X_AVM_DE_GetIPv6Prefix xmlns:u="urn:schemas-upnp-org:service:WANIPConnection:1"></u:X_AVM_DE_GetIPv6Prefix></s:Body></s:Envelope>';
 
 type IPV6SoapBody = {
   'u:X_AVM_DE_GetIPv6PrefixResponse': {
@@ -59,10 +59,10 @@ export async function unsubscribe(fritzboxEndpoint: string, uuid: string) {
 
 async function getIpV6Prefix(fritzboxBaseUrl: string) {
   const request: RequestInit = {
-    method: 'GET',
+    method: 'POST',
     body: ipv6RequestStatic,
     headers: {
-      SoapAction: `urn:schemas-upnp-org:service:WANIPConnection:1#$X_AVM_DE_GetIPv6Prefix`,
+      SoapAction: `urn:schemas-upnp-org:service:WANIPConnection:1#X_AVM_DE_GetIPv6Prefix`,
       'Content-Type': 'text/xml; charset="utf-8"',
       'Content-Length': `${ipv6RequestStatic.length}`,
     },

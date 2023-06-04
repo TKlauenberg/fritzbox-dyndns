@@ -23,6 +23,9 @@ WORKDIR /app
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
 
+# copy config files
+COPY ./config ./config
+
 # Install production dependencies
 RUN npm ci --only=production
 
