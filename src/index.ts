@@ -28,13 +28,16 @@ const updateHostname = (host: string, ip: string) =>
 
 const state = {
   ipV6Cidr: '',
-  ingressIp: '',
+  ownIngressName: config.get('kubernetes.ingress.name') as string,
+  ownIngressNamespace: config.get('kubernetes.ingress.namespace') as string,
+  ownIngressIpAddress: '',
 };
 /**
  * create kubernetes and fritzbox objects
  * create event listeners
  */
 function createNewIpAddressRange(prefix: string, length: number): string {
+  logger.crit('method "createNewIpAddressRange" not implemented');
   // TODO implement
   return '';
 }
@@ -46,28 +49,35 @@ prefixSubscription.on('prefix-changed', (prefix) => {
 });
 
 // kubeHandler helper functions
-function getIp(ingress: k8s.V1Ingress): string | undefined {
+function getIp(ingress: k8s.V1Ingress): {ip:string, port: number} | undefined {
   // TODO implement
-  return '';
+  logger.crit('method "getIp" not implemented');
+  return undefined;
 }
 function getHostname(ingress: k8s.V1Ingress): string | undefined {
   // TODO implement
-  return '';
+  logger.crit('method "getHostname" not implemented');
+  return undefined;
 }
 function isDomainManaged(ingress: k8s.V1Ingress): boolean {
   // TODO implement
+  logger.crit('method "isDomainManaged" not implemented');
   return true;
 }
 
 function isIngressSubscriptionIngress(ingress: k8s.V1Ingress): boolean {
-  // TODO implement
-  return true;
+  return (
+    ingress.metadata?.name == state.ownIngressName &&
+    ingress.metadata?.namespace == state.ownIngressNamespace
+  );
 }
 function hasIngressIpchanges(ingress: k8s.V1Ingress): boolean {
+  logger.crit('method "hasIngressIpchanges" not implemented');
   // TODO implement
   return true;
 }
 function isIngressUsedForDynDNS(ingress: k8s.V1Ingress): boolean {
+  logger.crit('method "isIngressUsedForDynDNS" not implemented');
   // TODO iplement
   return true;
 }
@@ -84,7 +94,7 @@ kubeHandler.on('ingress-changed', async (ingress) => {
       );
       return;
     }
-    await prefixSubscription.changeSubscription(ip);
+    await prefixSubscription.changeSubscription(ip.ip, ip.port);
   } else if (isIngressUsedForDynDNS(ingress)) {
     const ip = getIp(ingress);
     const hostname = getHostname(ingress);
@@ -97,7 +107,7 @@ kubeHandler.on('ingress-changed', async (ingress) => {
         `could not get hostname of ingress ${ingress.metadata?.namespace}/${ingress.metadata?.name}`,
       );
     } else {
-      await updateHostname(hostname, ip);
+      await updateHostname(hostname, ip.ip);
     }
   }
 });
@@ -107,7 +117,14 @@ async function initialize() {
    * 1. wait for ingress to be ready
    * 2. start service
    */
-  // TODO implement
-  await prefixSubscription.createService('');
+  const ownIpAddress = await kubeHandler.getIngressIpAddress(state.ownIngressName, state.ownIngressNamespace);
+  if (ownIpAddress == undefined) {
+    logger.crit(`could not find ip address of ${state.ownIngressNamespace}/${state.ownIngressName}`);
+    return;
+  }
+  logger.info(`ingress ip address is ${ownIpAddress.ip}`);
+  await prefixSubscription.createService();
+  await prefixSubscription.changeSubscription(ownIpAddress.ip, ownIpAddress.port);
+
 }
 initialize();

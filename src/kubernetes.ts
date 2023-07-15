@@ -20,12 +20,13 @@ export class KubeHandler extends EventEmitter {
     this.#k8sApi = k8sApi;
   }
   async changeIpAddressRange(addressRange: string) {
+    logger.crit('method "changeIpAddressRange" not implemented');
     // TODO implement
   }
   async getIngressIpAddress(
     name: string,
     namespace: string,
-  ): Promise<string | undefined> {
+  ): Promise<{ ip: string, port: number} | undefined> {
     const ingress = await this.#k8sApi.readNamespacedIngress(name, namespace);
     const loadBalancerIngress = ingress.body.status?.loadBalancer?.ingress;
     if (loadBalancerIngress == undefined || loadBalancerIngress.length === 0) {
@@ -33,7 +34,11 @@ export class KubeHandler extends EventEmitter {
       return undefined;
     }
     const ip = loadBalancerIngress[0].ip;
+    const port = loadBalancerIngress[0].ports![0].port;
     logger.info(`ip address is of ingress ${namespace}/${name} is ${ip}`);
-    return ip;
+    if (ip == undefined || port == undefined) {
+      throw new Error(`ip or port is undefined! ip: ${ip}, port: ${port}`);
+    }
+    return {ip,port};
   }
 }

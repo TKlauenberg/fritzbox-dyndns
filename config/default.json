@@ -7,5 +7,14 @@
     "user": "test",
     "password": "password",
     "endpoint": "http://example.com"
+  },
+  "kubernetes":{
+    "ingress":{
+      "name": "test",
+      "namespace": "test"
+    }
+  },
+  "service": {
+    "port": "8080"
   }
 }
