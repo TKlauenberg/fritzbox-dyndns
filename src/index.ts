@@ -49,7 +49,9 @@ prefixSubscription.on('prefix-changed', (prefix) => {
 });
 
 // kubeHandler helper functions
-function getIp(ingress: k8s.V1Ingress): {ip:string, port: number} | undefined {
+function getIp(
+  ingress: k8s.V1Ingress,
+): { ip: string; port: number } | undefined {
   // TODO implement
   logger.crit('method "getIp" not implemented');
   return undefined;
@@ -117,14 +119,21 @@ async function initialize() {
    * 1. wait for ingress to be ready
    * 2. start service
    */
-  const ownIpAddress = await kubeHandler.getIngressIpAddress(state.ownIngressName, state.ownIngressNamespace);
+  const ownIpAddress = await kubeHandler.getIngressIpAddress(
+    state.ownIngressName,
+    state.ownIngressNamespace,
+  );
   if (ownIpAddress == undefined) {
-    logger.crit(`could not find ip address of ${state.ownIngressNamespace}/${state.ownIngressName}`);
+    logger.crit(
+      `could not find ip address of ${state.ownIngressNamespace}/${state.ownIngressName}`,
+    );
     return;
   }
   logger.info(`ingress ip address is ${ownIpAddress.ip}`);
   await prefixSubscription.createService();
-  await prefixSubscription.changeSubscription(ownIpAddress.ip, ownIpAddress.port);
-
+  await prefixSubscription.changeSubscription(
+    ownIpAddress.ip,
+    ownIpAddress.port,
+  );
 }
 initialize();

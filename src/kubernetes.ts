@@ -26,9 +26,9 @@ export class KubeHandler extends EventEmitter {
   async getIngressIpAddress(
     name: string,
     namespace: string,
-  ): Promise<{ ip: string, port: number} | undefined> {
-    const ingress = await this.#k8sApi.readNamespacedIngress(name, namespace);
-    const loadBalancerIngress = ingress.body.status?.loadBalancer?.ingress;
+  ): Promise<{ ip: string; port: number } | undefined> {
+    try {
+      const ingress = await this.#k8sApi.readNamespacedIngress(name, namespace);const loadBalancerIngress = ingress.body.status?.loadBalancer?.ingress;
     if (loadBalancerIngress == undefined || loadBalancerIngress.length === 0) {
       logger.warn(`no ip address found for ingress ${namespace}/${name}`);
       return undefined;
@@ -39,6 +39,14 @@ export class KubeHandler extends EventEmitter {
     if (ip == undefined || port == undefined) {
       throw new Error(`ip or port is undefined! ip: ${ip}, port: ${port}`);
     }
-    return {ip,port};
+    return { ip, port };
+    } catch (error) {
+      if (error instanceof k8s.HttpError) {
+        logger.error(JSON.stringify(error.body));
+      }
+      logger.error('error occured at reading ingress');
+      return undefined;
+    }
+
   }
 }
