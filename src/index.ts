@@ -115,6 +115,8 @@ kubeHandler.on('ingress-changed', async (ingress) => {
 });
 
 async function initialize() {
+    // log information about logging configuration
+  logger.info(`loglevel: ${config.get('loglevel')}`)
   /**
    * 1. wait for ingress to be ready
    * 2. start service
