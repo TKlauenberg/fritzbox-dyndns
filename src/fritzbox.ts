@@ -76,7 +76,7 @@ async function subscribe(
 }
 
 async function unsubscribe(fritzboxEndpoint: string, uuid: string) {
-  logger.crit('method "unsubscribe" not implemented');
+  logger.error('method "unsubscribe" not implemented');
   // TODO implement
 }
 

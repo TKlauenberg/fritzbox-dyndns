@@ -20,7 +20,7 @@ export class KubeHandler extends EventEmitter {
     this.#k8sApi = k8sApi;
   }
   async changeIpAddressRange(addressRange: string) {
-    logger.crit('method "changeIpAddressRange" not implemented');
+    logger.error('method "changeIpAddressRange" not implemented');
     // TODO implement
   }
   async getIngressIpAddress(
@@ -28,18 +28,22 @@ export class KubeHandler extends EventEmitter {
     namespace: string,
   ): Promise<{ ip: string; port: number } | undefined> {
     try {
-      const ingress = await this.#k8sApi.readNamespacedIngress(name, namespace);const loadBalancerIngress = ingress.body.status?.loadBalancer?.ingress;
-    if (loadBalancerIngress == undefined || loadBalancerIngress.length === 0) {
-      logger.warn(`no ip address found for ingress ${namespace}/${name}`);
-      return undefined;
-    }
-    const ip = loadBalancerIngress[0].ip;
-    const port = loadBalancerIngress[0].ports![0].port;
-    logger.info(`ip address is of ingress ${namespace}/${name} is ${ip}`);
-    if (ip == undefined || port == undefined) {
-      throw new Error(`ip or port is undefined! ip: ${ip}, port: ${port}`);
-    }
-    return { ip, port };
+      const ingress = await this.#k8sApi.readNamespacedIngress(name, namespace);
+      const loadBalancerIngress = ingress.body.status?.loadBalancer?.ingress;
+      if (
+        loadBalancerIngress == undefined ||
+        loadBalancerIngress.length === 0
+      ) {
+        logger.warn(`no ip address found for ingress ${namespace}/${name}`);
+        return undefined;
+      }
+      const ip = loadBalancerIngress[0].ip;
+      const port = loadBalancerIngress[0].ports![0].port;
+      logger.info(`ip address is of ingress ${namespace}/${name} is ${ip}`);
+      if (ip == undefined || port == undefined) {
+        throw new Error(`ip or port is undefined! ip: ${ip}, port: ${port}`);
+      }
+      return { ip, port };
     } catch (error) {
       if (error instanceof k8s.HttpError) {
         logger.error(JSON.stringify(error.body));
@@ -47,6 +51,5 @@ export class KubeHandler extends EventEmitter {
       logger.error('error occured at reading ingress');
       return undefined;
     }
-
   }
 }

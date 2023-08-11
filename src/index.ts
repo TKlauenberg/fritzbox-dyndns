@@ -37,7 +37,7 @@ const state = {
  * create event listeners
  */
 function createNewIpAddressRange(prefix: string, length: number): string {
-  logger.crit('method "createNewIpAddressRange" not implemented');
+  logger.error('method "createNewIpAddressRange" not implemented');
   // TODO implement
   return '';
 }
@@ -53,17 +53,17 @@ function getIp(
   ingress: k8s.V1Ingress,
 ): { ip: string; port: number } | undefined {
   // TODO implement
-  logger.crit('method "getIp" not implemented');
+  logger.error('method "getIp" not implemented');
   return undefined;
 }
 function getHostname(ingress: k8s.V1Ingress): string | undefined {
   // TODO implement
-  logger.crit('method "getHostname" not implemented');
+  logger.error('method "getHostname" not implemented');
   return undefined;
 }
 function isDomainManaged(ingress: k8s.V1Ingress): boolean {
   // TODO implement
-  logger.crit('method "isDomainManaged" not implemented');
+  logger.error('method "isDomainManaged" not implemented');
   return true;
 }
 
@@ -74,12 +74,12 @@ function isIngressSubscriptionIngress(ingress: k8s.V1Ingress): boolean {
   );
 }
 function hasIngressIpchanges(ingress: k8s.V1Ingress): boolean {
-  logger.crit('method "hasIngressIpchanges" not implemented');
+  logger.error('method "hasIngressIpchanges" not implemented');
   // TODO implement
   return true;
 }
 function isIngressUsedForDynDNS(ingress: k8s.V1Ingress): boolean {
-  logger.crit('method "isIngressUsedForDynDNS" not implemented');
+  logger.error('method "isIngressUsedForDynDNS" not implemented');
   // TODO iplement
   return true;
 }
@@ -124,7 +124,7 @@ async function initialize() {
     state.ownIngressNamespace,
   );
   if (ownIpAddress == undefined) {
-    logger.crit(
+    logger.error(
       `could not find ip address of ${state.ownIngressNamespace}/${state.ownIngressName}`,
     );
     return;

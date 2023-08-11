@@ -9,6 +9,6 @@ export async function updateHostname(
   hostname: string,
   ip: string,
 ) {
-  logger.crit('method "updateHostname" not implemented');
+  logger.error('method "updateHostname" not implemented');
   // TODO implement
 }
