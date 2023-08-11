@@ -35,6 +35,9 @@ export class KubeHandler extends EventEmitter {
         loadBalancerIngress.length === 0
       ) {
         logger.warn(`no ip address found for ingress ${namespace}/${name}`);
+        if (logger.isDebugEnabled()) {
+          logger.debug(`response: ${JSON.stringify(ingress)}`);
+        }
         return undefined;
       }
       const ip = loadBalancerIngress[0].ip;
