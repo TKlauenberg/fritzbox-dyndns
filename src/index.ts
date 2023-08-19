@@ -7,6 +7,13 @@ import { getLogger } from './logger.js';
 
 const logger = getLogger(import.meta.url);
 
+const state = {
+  ipV6Cidr: '',
+  ownIngressName: config.get('kubernetes.ingress.name') as string,
+  ownIngressNamespace: config.get('kubernetes.ingress.namespace') as string,
+  ownIngressIpAddress: '',
+};
+
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
@@ -15,7 +22,14 @@ const k8sApi = kc.makeApiClient(k8s.NetworkingV1Api);
 const prefixSubscription = new IPV6PrefixSubscription(
   config.get('fritzbox.endpoint'),
 );
-const kubeHandler = new KubeHandler(k8sApi);
+
+const watch = new k8s.Watch(kc);
+const kubeHandler = new KubeHandler(
+  k8sApi,
+  watch,
+  state.ownIngressName,
+  state.ownIngressNamespace,
+);
 
 const updateHostname = (host: string, ip: string) =>
   updateHostnameDyndns(
@@ -26,12 +40,7 @@ const updateHostname = (host: string, ip: string) =>
     ip,
   );
 
-const state = {
-  ipV6Cidr: '',
-  ownIngressName: config.get('kubernetes.ingress.name') as string,
-  ownIngressNamespace: config.get('kubernetes.ingress.namespace') as string,
-  ownIngressIpAddress: '',
-};
+
 /**
  * create kubernetes and fritzbox objects
  * create event listeners
@@ -115,27 +124,12 @@ kubeHandler.on('ingress-changed', async (ingress) => {
 });
 
 async function initialize() {
-    // log information about logging configuration
-  logger.info(`loglevel: ${config.get('loglevel')}`)
+  // log information about logging configuration
+  logger.info(`loglevel: ${config.get('loglevel')}`);
   /**
    * 1. wait for ingress to be ready
    * 2. start service
    */
-  const ownIpAddress = await kubeHandler.getIngressIpAddress(
-    state.ownIngressName,
-    state.ownIngressNamespace,
-  );
-  if (ownIpAddress == undefined) {
-    logger.error(
-      `could not find ip address of ${state.ownIngressNamespace}/${state.ownIngressName}`,
-    );
-    return;
-  }
-  logger.info(`ingress ip address is ${ownIpAddress.ip}`);
   await prefixSubscription.createService();
-  await prefixSubscription.changeSubscription(
-    ownIpAddress.ip,
-    ownIpAddress.port,
-  );
 }
 initialize();
