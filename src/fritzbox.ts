@@ -179,10 +179,10 @@ export class IPV6PrefixSubscription extends EventEmitter {
     app.use(bodyParser({ enableTypes: ['xml'] }));
     app.use(async (ctx, next) => {
       // Handle the webhook request here
-      console.log('Received webhook request');
+      logger.debug('Received webhook request');
 
       if (ctx.request.rawBody === undefined) {
-        logger.info('kubernetes ping or request without body');
+        logger.debug('kubernetes ping or request without body');
         ctx.status = 200;
         ctx.body = 'ping received successfully';
         return;

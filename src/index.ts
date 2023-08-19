@@ -131,5 +131,6 @@ async function initialize() {
    * 2. start service
    */
   await prefixSubscription.createService();
+  await kubeHandler.init();
 }
 initialize();
