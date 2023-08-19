@@ -181,14 +181,13 @@ export class IPV6PrefixSubscription extends EventEmitter {
       // Handle the webhook request here
       console.log('Received webhook request');
 
-      if (ctx.request.body === undefined) {
+      if (ctx.request.rawBody === undefined) {
         logger.error('no body received');
         return;
       }
       if (logger.isDebugEnabled()) {
-        logger.debug(JSON.stringify(ctx.request));
-        logger.debug(JSON.stringify(ctx.request.rawBody))
-        logger.debug(JSON.stringify(ctx.request.body))
+        logger.debug(`rawBody: ${JSON.stringify(ctx.request.rawBody)}`)
+        logger.debug(`body: ${JSON.stringify(ctx.request.body)}`)
       }
       const data = parser.parse(ctx.request.rawBody) as PropertySetObj;
       const propertyOrProperties = data['e:propertyset']['e:property'];
