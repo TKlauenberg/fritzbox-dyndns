@@ -185,6 +185,9 @@ export class IPV6PrefixSubscription extends EventEmitter {
         logger.error('no body received');
         return;
       }
+      if (logger.isDebugEnabled()) {
+        logger.debug(JSON.stringify(ctx.request));
+      }
       const data = parser.parse(ctx.request.rawBody) as PropertySetObj;
       const propertyOrProperties = data['e:propertyset']['e:property'];
       this.#handlePropertyChange(propertyOrProperties);
