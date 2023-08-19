@@ -182,7 +182,9 @@ export class IPV6PrefixSubscription extends EventEmitter {
       console.log('Received webhook request');
 
       if (ctx.request.rawBody === undefined) {
-        logger.error('no body received');
+        logger.info('kubernetes ping or request without body');
+        ctx.status = 200;
+        ctx.body = 'ping received successfully';
         return;
       }
       if (logger.isDebugEnabled()) {
