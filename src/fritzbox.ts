@@ -187,6 +187,8 @@ export class IPV6PrefixSubscription extends EventEmitter {
       }
       if (logger.isDebugEnabled()) {
         logger.debug(JSON.stringify(ctx.request));
+        logger.debug(JSON.stringify(ctx.request.rawBody))
+        logger.debug(JSON.stringify(ctx.request.body))
       }
       const data = parser.parse(ctx.request.rawBody) as PropertySetObj;
       const propertyOrProperties = data['e:propertyset']['e:property'];
