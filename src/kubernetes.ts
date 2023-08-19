@@ -36,23 +36,18 @@ export class KubeHandler extends EventEmitter {
       `apis/networking.k8s.io/v1/namespaces/${this.#namespace}/ingresses`,
       {},
       (type, obj) => {
+        logger.info('ingress changed');
         const ingress = obj as k8s.V1Ingress;
-        if (ingress.metadata?.name === this.#ingressName) {
-          const loadBalancerIngress = ingress.status?.loadBalancer?.ingress;
-          if (
-            loadBalancerIngress &&
-            loadBalancerIngress.length > 0 &&
-            loadBalancerIngress[0].ip
-          ) {
-            const loadBalancerIP = loadBalancerIngress[0].ip;
-            this.emit('ingress-changed', loadBalancerIP)
-          }
-        }
+        logger.debug(
+          `ingress changed with name: ${ingress.metadata?.namespace}:${ingress.metadata?.name}`,
+        );
+        this.emit('ingress-changed', ingress);
       },
       (err) => {
         logger.error(`error in watch: ${JSON.stringify(err)}`);
       },
     );
+    logger.info('initialized watch');
     this.#watchRequest = req;
   }
   async dispose() {
