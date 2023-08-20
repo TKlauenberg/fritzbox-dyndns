@@ -22,20 +22,11 @@ if (logger.isDebugEnabled()) {
   logger.debug(JSON.stringify(kc.users));
 }
 
-
-const k8sApi = kc.makeApiClient(k8s.NetworkingV1Api);
-
 const prefixSubscription = new IPV6PrefixSubscription(
   config.get('fritzbox.endpoint'),
 );
 
-const watch = new k8s.Watch(kc);
-const kubeHandler = new KubeHandler(
-  k8sApi,
-  watch,
-  state.ownIngressName,
-  state.ownIngressNamespace,
-);
+const kubeHandler = new KubeHandler(kc);
 
 const updateHostname = (host: string, ip: string) =>
   updateHostnameDyndns(
@@ -45,7 +36,6 @@ const updateHostname = (host: string, ip: string) =>
     host,
     ip,
   );
-
 
 /**
  * create kubernetes and fritzbox objects
