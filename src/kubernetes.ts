@@ -1,6 +1,13 @@
 import * as k8s from '@kubernetes/client-node';
 import { EventEmitter } from 'events';
+import request from 'request';
+import rqDebug from 'request-debug';
 import { getLogger } from './logger.js';
+
+rqDebug(request, (type, data, r) => {
+  console.log(`debug-type: ${JSON.stringify(type)}`);
+  console.log(`debug-href: ${JSON.stringify((r as any).uri.href)}`);
+});
 
 const logger = getLogger(import.meta.url);
 
