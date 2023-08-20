@@ -33,7 +33,7 @@ export class KubeHandler extends EventEmitter {
     const listFn = () => this.#k8sApi.listIngressForAllNamespaces();
     this.#informer = k8s.makeInformer(
       this.#kc,
-      `apis/networking.k8s.io/v1/ingresses`,
+      `/apis/networking.k8s.io/v1/ingresses`,
       listFn,
     );
     this.#informer.on('add', (ingress: k8s.V1Ingress) => {
