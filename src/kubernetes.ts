@@ -33,7 +33,7 @@ export class KubeHandler extends EventEmitter {
   }
   async init() {
     const req = await this.#watch.watch(
-      `apis/networking.k8s.io/v1/namespaces/${this.#namespace}/ingresses`,
+      `apis/networking.k8s.io/v1/ingresses`,
       {},
       (type, obj) => {
         logger.info('ingress changed');
