@@ -16,6 +16,12 @@ const state = {
 
 const kc = new k8s.KubeConfig();
 kc.loadFromCluster();
+if (logger.isDebugEnabled()) {
+  logger.debug(`users: ${JSON.stringify(kc.getUsers())}`);
+  logger.debug(JSON.stringify(kc.clusters));
+  logger.debug(JSON.stringify(kc.users));
+}
+
 
 const k8sApi = kc.makeApiClient(k8s.NetworkingV1Api);
 
