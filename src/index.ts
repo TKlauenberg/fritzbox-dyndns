@@ -15,7 +15,7 @@ const state = {
 };
 
 const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
+kc.loadFromCluster();
 
 const k8sApi = kc.makeApiClient(k8s.NetworkingV1Api);
 
