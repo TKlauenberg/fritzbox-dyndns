@@ -27,7 +27,7 @@ COPY --from=build /app/package*.json ./
 COPY ./config ./config
 
 # Install production dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Set the desired port (change if needed)
 ENV PORT 8080
