@@ -4,12 +4,14 @@ import request from 'request';
 import rqDebug from 'request-debug';
 import { getLogger } from './logger.js';
 
-rqDebug(request, (type, data, r) => {
-  console.log(`debug-type: ${JSON.stringify(type)}`);
-  console.log(`debug-href: ${JSON.stringify((r as any).uri.href)}`);
-});
-
 const logger = getLogger(import.meta.url);
+
+if (logger.isSillyEnabled()) {
+  rqDebug(request, (type, data, r) => {
+    console.log(`debug-type: ${JSON.stringify(type)}`);
+    console.log(`debug-href: ${JSON.stringify((r as any).uri.href)}`);
+  });
+}
 
 export declare interface KubeHandler {
   // TODO implement
@@ -49,7 +51,7 @@ export class KubeHandler extends EventEmitter {
       this.emit('ingress-changed', ingress);
     });
     this.#informer.on('delete', (ingress: k8s.V1Ingress) => {
-      logger.debug(`delete: ${JSON.stringify(ingress)}`)
+      logger.debug(`delete: ${JSON.stringify(ingress)}`);
       this.emit('ingress-changed', ingress);
     });
     this.#informer.on('error', (err: k8s.V1Pod) => {

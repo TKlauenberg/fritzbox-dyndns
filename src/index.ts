@@ -28,13 +28,15 @@ const prefixSubscription = new IPV6PrefixSubscription(
 
 const kubeHandler = new KubeHandler(kc);
 
-const updateHostname = (host: string, ip: string) =>
-  updateHostnameDyndns(
-    config.get('dyndns.user'),
-    config.get('dyndns.password'),
-    config.get('dyndns.endpoint'),
-    host,
-    ip,
+const updateHostname = (hosts: string[], ip: string) =>
+  hosts.forEach((host) =>
+    updateHostnameDyndns(
+      config.get('dyndns.user'),
+      config.get('dyndns.password'),
+      config.get('dyndns.endpoint'),
+      host,
+      ip,
+    ),
   );
 
 /**
@@ -54,17 +56,31 @@ prefixSubscription.on('prefix-changed', (prefix) => {
 });
 
 // kubeHandler helper functions
-function getIp(
-  ingress: k8s.V1Ingress,
-): { ip: string; port: number } | undefined {
-  // TODO implement
-  logger.error('method "getIp" not implemented');
-  return undefined;
+function getIp(ingress: k8s.V1Ingress): string | undefined {
+  return ingress.status?.loadBalancer?.ingress?.[0]?.ip;
 }
-function getHostname(ingress: k8s.V1Ingress): string | undefined {
-  // TODO implement
-  logger.error('method "getHostname" not implemented');
-  return undefined;
+
+function getServicePort(
+  ingress: k8s.V1Ingress,
+  serviceName: string,
+): number | undefined {
+  const rules = ingress.spec?.rules;
+  if (rules === undefined) {
+    return undefined;
+  }
+  const services = rules
+    .flatMap((rule) => rule.http?.paths?.map((path) => path.backend.service))
+    .filter((service) => service !== undefined);
+  const service = services.find((service) => service?.name === serviceName);
+  return service?.port?.number;
+}
+
+function getHostname(
+  ingress: k8s.V1Ingress,
+): (string | undefined)[] | undefined {
+  return ingress.spec?.rules
+    ?.map((rule) => rule.host)
+    .filter((host) => host !== undefined);
 }
 function isDomainManaged(ingress: k8s.V1Ingress): boolean {
   // TODO implement
@@ -101,20 +117,33 @@ kubeHandler.on('ingress-changed', async (ingress) => {
       );
       return;
     }
-    await prefixSubscription.changeSubscription(ip.ip, ip.port);
+    const port = getServicePort(
+      ingress,
+      config.get('kubernetes.service.name') as string,
+    );
+    if (port === undefined) {
+      logger.warn(
+        `could not get port from ingress ${ingress.metadata?.namespace}/${ingress.metadata?.name}`,
+      );
+      return;
+    }
+    await prefixSubscription.changeSubscription(ip, port);
   } else if (isIngressUsedForDynDNS(ingress)) {
     const ip = getIp(ingress);
-    const hostname = getHostname(ingress);
+    const hostnames = getHostname(ingress);
     if (ip === undefined) {
       logger.error(
         `could not get ip of ingress ${ingress.metadata?.namespace}/${ingress.metadata?.name}`,
       );
-    } else if (hostname === undefined) {
+    } else if (hostnames === undefined) {
       logger.error(
         `could not get hostname of ingress ${ingress.metadata?.namespace}/${ingress.metadata?.name}`,
       );
     } else {
-      await updateHostname(hostname, ip.ip);
+      const filtered = hostnames.filter(
+        (hostname) => hostname !== undefined,
+      ) as string[];
+      await updateHostname(filtered, ip);
     }
   }
 });
