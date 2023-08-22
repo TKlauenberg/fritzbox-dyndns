@@ -119,7 +119,7 @@ kubeHandler.on('ingress-changed', async (ingress) => {
     }
     const port = getServicePort(
       ingress,
-      config.get('kubernetes.service.name') as string,
+      config.get('kubernetes.ingress.name') as string,
     );
     if (port === undefined) {
       logger.warn(
