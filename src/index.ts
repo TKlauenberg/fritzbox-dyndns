@@ -94,9 +94,18 @@ function isIngressSubscriptionIngress(ingress: k8s.V1Ingress): boolean {
     ingress.metadata?.namespace == state.ownIngressNamespace
   );
 }
-function hasIngressIpchanges(ingress: k8s.V1Ingress): boolean {
-  logger.error('method "hasIngressIpchanges" not implemented');
-  // TODO implement
+/**
+ * checks if the ip of the ingress has changed
+ * @param ingress
+ * @returns true if the ip has changed
+ * @returns false if the ip has not changed
+ */
+function hasOwnIngressIpchanged(ingress: k8s.V1Ingress): boolean {
+  const ip = getIp(ingress);
+  if (ip === undefined || ip === state.ownIngressIpAddress) {
+    return false;
+  }
+  state.ownIngressIpAddress = ip;
   return true;
 }
 function isIngressUsedForDynDNS(ingress: k8s.V1Ingress): boolean {
@@ -109,7 +118,10 @@ kubeHandler.on('ingress-changed', async (ingress) => {
   logger.debug(
     `ingress-changed for ingress ${ingress.metadata?.namespace}/${ingress.metadata?.name}`,
   );
-  if (isIngressSubscriptionIngress(ingress) && hasIngressIpchanges(ingress)) {
+  if (
+    isIngressSubscriptionIngress(ingress) &&
+    hasOwnIngressIpchanged(ingress)
+  ) {
     const ip = getIp(ingress);
     if (ip === undefined) {
       logger.warn(

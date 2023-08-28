@@ -2,7 +2,6 @@ import config from 'config';
 import { EventEmitter } from 'events';
 import * as xml from 'fast-xml-parser';
 import { Server } from 'http';
-import ipaddr from 'ipaddr.js';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { getLogger } from './logger.js';
@@ -110,7 +109,6 @@ export declare interface IPV6PrefixSubscription {
 
 export class IPV6PrefixSubscription extends EventEmitter {
   #fritzboxBaseUrl: string;
-  #ingressUrl: string;
   #subscriptionUuid: string;
   #service?: Server;
   #currentIpv6Network: string;
@@ -118,7 +116,6 @@ export class IPV6PrefixSubscription extends EventEmitter {
   constructor(fritzboxBasrUrl: string) {
     super();
     this.#fritzboxBaseUrl = fritzboxBasrUrl;
-    this.#ingressUrl = '';
     this.#subscriptionUuid = '';
     this.#currentIpv6Network = '';
     this.#currentPrefixLength = 0;
@@ -130,7 +127,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
    * @param port port of kubernetes ingress
    */
   async changeSubscription(ip: string, port: number) {
-    if (this.#ingressUrl !== '') {
+    if (this.#subscriptionUuid !== '') {
       await unsubscribe(this.#fritzboxBaseUrl, this.#subscriptionUuid);
     }
     const ownEndpoint = `http://${ip}:${port}`;
@@ -188,8 +185,8 @@ export class IPV6PrefixSubscription extends EventEmitter {
         return;
       }
       if (logger.isDebugEnabled()) {
-        logger.debug(`rawBody: ${JSON.stringify(ctx.request.rawBody)}`)
-        logger.debug(`body: ${JSON.stringify(ctx.request.body)}`)
+        logger.debug(`rawBody: ${JSON.stringify(ctx.request.rawBody)}`);
+        logger.debug(`body: ${JSON.stringify(ctx.request.body)}`);
       }
       const data = parser.parse(ctx.request.rawBody) as PropertySetObj;
       const propertyOrProperties = data['e:propertyset']['e:property'];
