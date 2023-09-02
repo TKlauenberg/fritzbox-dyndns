@@ -61,6 +61,7 @@ async function subscribe(
   fritzboxEndpoint: string,
   ownEndpoint: string,
 ): Promise<string> {
+  logger.debug(`subscribe(${fritzboxEndpoint}, ${ownEndpoint})`);
   const url = `${fritzboxEndpoint}${endpointUrl}`;
   const headers = {
     CALLBACK: `<${ownEndpoint}>`,
@@ -127,6 +128,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
    * @param port port of kubernetes ingress
    */
   async changeSubscription(ip: string, port: number) {
+    logger.debug(`changeSubscription(${ip}, ${port})`);
     if (this.#subscriptionUuid !== '') {
       await unsubscribe(this.#fritzboxBaseUrl, this.#subscriptionUuid);
     }
