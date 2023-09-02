@@ -181,16 +181,17 @@ export class IPV6PrefixSubscription extends EventEmitter {
     app.use(async (ctx, next) => {
       // Handle the webhook request here
       logger.debug('Received webhook request');
-
+      if (logger.isDebugEnabled()) {
+        // log request origin ip address
+        logger.debug(`ip: ${ctx.request.ip}`);
+        logger.debug(`rawBody: ${JSON.stringify(ctx.request.rawBody)}`);
+        logger.debug(`body: ${JSON.stringify(ctx.request.body)}`);
+      }
       if (ctx.request.rawBody === undefined) {
         logger.debug('kubernetes ping or request without body');
         ctx.status = 200;
         ctx.body = 'ping received successfully';
         return;
-      }
-      if (logger.isDebugEnabled()) {
-        logger.debug(`rawBody: ${JSON.stringify(ctx.request.rawBody)}`);
-        logger.debug(`body: ${JSON.stringify(ctx.request.body)}`);
       }
       const data = parser.parse(ctx.request.rawBody) as PropertySetObj;
       const propertyOrProperties = data['e:propertyset']['e:property'];
