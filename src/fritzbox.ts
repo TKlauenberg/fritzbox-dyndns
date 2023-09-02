@@ -72,6 +72,8 @@ async function subscribe(
   if (!result.ok) {
     throw new Error(`error response: ${result.status}, ${await result.text()}`);
   }
+  logger.debug(`subscribe response: ${result.status}`);
+  logger.debug(`sid: ${result.headers.get('sid')}`);
   return result.headers.get('sid')!;
 }
 
