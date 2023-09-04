@@ -1,4 +1,5 @@
 import config from 'config';
+import DigestClient from 'digest-fetch';
 import { EventEmitter } from 'events';
 import * as xml from 'fast-xml-parser';
 import { Server } from 'http';
@@ -60,6 +61,7 @@ const parser = new xml.XMLParser({
 async function subscribe(
   fritzboxEndpoint: string,
   ownEndpoint: string,
+  client: DigestClient,
 ): Promise<string> {
   logger.debug(`subscribe(${fritzboxEndpoint}, ${ownEndpoint})`);
   const url = `${fritzboxEndpoint}${endpointUrl}`;
@@ -68,7 +70,7 @@ async function subscribe(
     NT: 'upnp:event',
     TIMEOUT: (60 * 60 * 48).toString(),
   };
-  const result = await fetch(url, { headers, method: 'SUBSCRIBE' });
+  const result = await client.fetch(url, { headers, method: 'SUBSCRIBE' });
   if (!result.ok) {
     throw new Error(`error response: ${result.status}, ${await result.text()}`);
   }
@@ -116,12 +118,17 @@ export class IPV6PrefixSubscription extends EventEmitter {
   #service?: Server;
   #currentIpv6Network: string;
   #currentPrefixLength: number;
+  #client: DigestClient;
   constructor(fritzboxBasrUrl: string) {
     super();
     this.#fritzboxBaseUrl = fritzboxBasrUrl;
     this.#subscriptionUuid = '';
     this.#currentIpv6Network = '';
     this.#currentPrefixLength = 0;
+    this.#client = new DigestClient("","", {
+      logger,
+      cnonceSize: 48,
+    });
   }
   /**
    * Change the event subscription to the fritzbox.
@@ -137,6 +144,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
     this.#subscriptionUuid = await subscribe(
       this.#fritzboxBaseUrl,
       ownEndpoint,
+      this.#client,
     );
   }
   async #handlePropertyChange(propertyOrProperties: Property | Property[]) {
