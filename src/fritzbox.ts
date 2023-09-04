@@ -127,14 +127,13 @@ export class IPV6PrefixSubscription extends EventEmitter {
    * Change the event subscription to the fritzbox.
    * If no current subscription is present then create first subscription.
    * @param ip ip address of kubernetes ingress
-   * @param port port of kubernetes ingress
    */
-  async changeSubscription(ip: string, port: number) {
-    logger.debug(`changeSubscription(${ip}, ${port})`);
+  async changeSubscription(ip: string) {
+    logger.debug(`changeSubscription(${ip})`);
     if (this.#subscriptionUuid !== '') {
       await unsubscribe(this.#fritzboxBaseUrl, this.#subscriptionUuid);
     }
-    const ownEndpoint = `http://${ip}:${port}`;
+    const ownEndpoint = `http://${ip}`;
     this.#subscriptionUuid = await subscribe(
       this.#fritzboxBaseUrl,
       ownEndpoint,

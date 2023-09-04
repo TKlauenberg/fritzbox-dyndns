@@ -60,21 +60,6 @@ function getIp(ingress: k8s.V1Ingress): string | undefined {
   return ingress.status?.loadBalancer?.ingress?.[0]?.ip;
 }
 
-function getServicePort(
-  ingress: k8s.V1Ingress,
-  serviceName: string,
-): number | undefined {
-  const rules = ingress.spec?.rules;
-  if (rules === undefined) {
-    return undefined;
-  }
-  const services = rules
-    .flatMap((rule) => rule.http?.paths?.map((path) => path.backend.service))
-    .filter((service) => service !== undefined);
-  const service = services.find((service) => service?.name === serviceName);
-  return service?.port?.number;
-}
-
 function getHostname(
   ingress: k8s.V1Ingress,
 ): (string | undefined)[] | undefined {
@@ -129,17 +114,7 @@ kubeHandler.on('ingress-changed', async (ingress) => {
       );
       return;
     }
-    const port = getServicePort(
-      ingress,
-      config.get('kubernetes.ingress.name') as string,
-    );
-    if (port === undefined) {
-      logger.warn(
-        `could not get port from ingress ${ingress.metadata?.namespace}/${ingress.metadata?.name}`,
-      );
-      return;
-    }
-    await prefixSubscription.changeSubscription(ip, port);
+    await prefixSubscription.changeSubscription(ip);
   } else if (isIngressUsedForDynDNS(ingress)) {
     const ip = getIp(ingress);
     const hostnames = getHostname(ingress);
