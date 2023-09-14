@@ -70,6 +70,7 @@ async function subscribe(
     NT: 'upnp:event',
     TIMEOUT: (60 * 60 * 48).toString(),
   };
+  logger.debug(`subscribe request: ${JSON.stringify(headers)}`);
   const result = await client.fetch(url, { headers, method: 'SUBSCRIBE' });
   if (!result.ok) {
     throw new Error(`error response: ${result.status}, ${await result.text()}`);
