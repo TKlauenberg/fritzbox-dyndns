@@ -125,7 +125,9 @@ export class IPV6PrefixSubscription extends EventEmitter {
     this.#subscriptionUuid = '';
     this.#currentIpv6Network = '';
     this.#currentPrefixLength = 0;
-    this.#client = new DigestClient("","", {
+    const username = config.get('fritzbox.username') as string;
+    const password = config.get('fritzbox.password') as string;
+    this.#client = new DigestClient(username, password, {
       logger,
       cnonceSize: 48,
     });

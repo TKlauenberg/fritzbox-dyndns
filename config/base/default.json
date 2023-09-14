@@ -1,6 +1,8 @@
 {
   "loglevel": "info",
   "fritzbox": {
+    "user": "example",
+    "password": "password",
     "endpoint": "http://fritz.box:49000"
   },
   "dyndns": {
