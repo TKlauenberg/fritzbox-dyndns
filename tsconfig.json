@@ -7,7 +7,7 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "module": "es2022",
+    "module": "NodeNext",
     "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
