@@ -65,6 +65,7 @@ async function subscribe(
 ): Promise<string> {
   logger.debug(`subscribe(${fritzboxEndpoint}, ${ownEndpoint})`);
   const url = `${fritzboxEndpoint}${endpointUrl}`;
+  logger.debug(`subscribe url: ${url}`);
   const headers = {
     CALLBACK: `<${ownEndpoint}>`,
     NT: 'upnp:event',

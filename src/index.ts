@@ -114,7 +114,7 @@ kubeHandler.on('ingress-changed', async (ingress) => {
       );
       return;
     }
-    await prefixSubscription.changeSubscription(ip);
+    await prefixSubscription.changeSubscription(`${ip}:80`);
   } else if (isIngressUsedForDynDNS(ingress)) {
     const ip = getIp(ingress);
     const hostnames = getHostname(ingress);
