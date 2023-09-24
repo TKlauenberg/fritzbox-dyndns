@@ -67,11 +67,6 @@ function getHostname(
     ?.map((rule) => rule.host)
     .filter((host) => host !== undefined);
 }
-function isDomainManaged(ingress: k8s.V1Ingress): boolean {
-  // TODO implement
-  logger.error('method "isDomainManaged" not implemented');
-  return true;
-}
 
 function isIngressSubscriptionIngress(ingress: k8s.V1Ingress): boolean {
   return (
@@ -93,10 +88,15 @@ function hasOwnIngressIpchanged(ingress: k8s.V1Ingress): boolean {
   state.ownIngressIpAddress = ip;
   return true;
 }
+
 function isIngressUsedForDynDNS(ingress: k8s.V1Ingress): boolean {
-  logger.error('method "isIngressUsedForDynDNS" not implemented');
-  // TODO iplement
-  return true;
+  const annotation = ingress.metadata?.annotations?.['fritzbox-dyndns/dyndns-name'];
+  if (logger.isDebugEnabled()) {
+    const namespace = ingress.metadata?.namespace;
+    const name = ingress.metadata?.name;
+    logger.debug(`ingress "${namespace}/${name}" has annotation: ${annotation}`);
+  }
+  return annotation !== undefined;
 }
 // kubeHandler event listeners
 kubeHandler.on('ingress-changed', async (ingress) => {

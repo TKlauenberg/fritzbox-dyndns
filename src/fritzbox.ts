@@ -69,7 +69,7 @@ async function subscribe(
   const headers = {
     CALLBACK: `<${ownEndpoint}>`,
     NT: 'upnp:event',
-    TIMEOUT: (60 * 60 * 48).toString(),
+    TIMEOUT: (60 * 60 * 24 * 7).toString(),
   };
   logger.debug(`subscribe request: ${JSON.stringify(headers)}`);
   const result = await client.fetch(url, { headers, method: 'SUBSCRIBE' });
@@ -150,6 +150,9 @@ export class IPV6PrefixSubscription extends EventEmitter {
       ownEndpoint,
       this.#client,
     );
+    if(logger.isDebugEnabled()) {
+      logger.debug(`subscriptionUuid: ${this.#subscriptionUuid}`);
+    }
   }
   async #handlePropertyChange(propertyOrProperties: Property | Property[]) {
     // array check

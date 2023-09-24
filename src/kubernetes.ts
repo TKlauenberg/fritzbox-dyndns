@@ -22,14 +22,35 @@ export declare interface KubeHandler {
   on(event: string, listener: Function): this;
 }
 
+interface IPAddressPool {
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    annotations: Record<string, string>;
+    creationTimestamp: string;
+    generation: number;
+    name: string;
+    namespace: string;
+    resourceVersion: string;
+    uid: string;
+  };
+  spec: {
+    addresses: string[];
+    autoAssign: boolean;
+    avoidBuggyIPs: boolean;
+  };
+}
+
 export class KubeHandler extends EventEmitter {
   #kc: k8s.KubeConfig;
   #k8sApi: k8s.NetworkingV1Api;
+  #k8sCustomApi: k8s.CustomObjectsApi;
   #informer?: k8s.Informer<k8s.V1Ingress>;
   constructor(kc: k8s.KubeConfig) {
     super();
     this.#kc = kc;
     this.#k8sApi = kc.makeApiClient(k8s.NetworkingV1Api);
+    this.#k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
   }
   async init() {
     const listFn = () => this.#k8sApi.listIngressForAllNamespaces();
@@ -66,8 +87,46 @@ export class KubeHandler extends EventEmitter {
   async dispose() {
     this.#informer?.stop();
   }
-  async changeIpAddressRange(addressRange: string) {
-    logger.error('method "changeIpAddressRange" not implemented');
-    // TODO implement
+  async changeIpAddressRange(name: string, namespace: string, addressRange: string) {
+    // get metalLB ip address pool
+    const pool = await this.#k8sCustomApi.getNamespacedCustomObject(
+      'metallb.io',
+      'v1alpha1',
+      namespace,
+      'addresspools',
+      name,
+    );
+    // change address range
+    (pool.body as IPAddressPool).spec.addresses = [addressRange];
+    // update pool
+    await this.#k8sCustomApi.replaceNamespacedCustomObject(
+      'metallb.io',
+      'v1alpha1',
+      namespace,
+      'addresspools',
+      name,
+      pool.body,
+    );
+  }
+  async restartDaemonSet(daemonSetName: string, namespace: string) {
+    // get api client for daemonset
+    const daemonSetApi = this.#kc.makeApiClient(k8s.AppsV1Api);
+    // get daemonset
+    const daemonset = await daemonSetApi.readNamespacedDaemonSet(
+      daemonSetName,
+      namespace,
+    );
+    // change restartedAt to trigger restart
+    daemonset.body.spec!.template.metadata!.annotations = {
+      ...daemonset.body.spec!.template.metadata!.annotations,
+      restartedAt: new Date().toISOString(),
+    };
+    // update daemonset
+    await daemonSetApi.patchNamespacedDaemonSet(
+      daemonSetName,
+      namespace,
+      daemonset.body,
+    );
+
   }
 }
