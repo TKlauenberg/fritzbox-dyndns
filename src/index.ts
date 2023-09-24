@@ -52,7 +52,8 @@ function createNewIpAddressRange(prefix: string, length: number): string {
 prefixSubscription.on('prefix-changed', (prefix) => {
   const ipAddressRange = createNewIpAddressRange(prefix.prefix, prefix.length);
   logger.info(`new addressrange is: ${ipAddressRange}`);
-  kubeHandler.changeIpAddressRange(ipAddressRange);
+  logger.info(`currently not implemented`);
+  // kubeHandler.changeIpAddressRange(ipAddressRange);
 });
 
 // kubeHandler helper functions
