@@ -191,7 +191,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
   async createService() {
     const app = new Koa();
 
-    app.use(bodyParser({ enableTypes: ['xml'] }));
+    app.use(bodyParser({ enableTypes: ['text'] }));
     app.use(async (ctx, next) => {
       // Handle the webhook request here
       logger.debug('Received webhook request');
