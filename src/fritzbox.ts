@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import * as xml from 'fast-xml-parser';
 import { Server } from 'http';
 import Koa from 'koa';
+import Router from 'koa-router';
 import { getLogger } from './logger.js';
 
 const logger = getLogger(import.meta.url);
@@ -149,7 +150,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
       ownEndpoint,
       this.#client,
     );
-    if(logger.isDebugEnabled()) {
+    if (logger.isDebugEnabled()) {
       logger.debug(`subscriptionUuid: ${this.#subscriptionUuid}`);
     }
   }
@@ -189,13 +190,23 @@ export class IPV6PrefixSubscription extends EventEmitter {
   }
   async createService() {
     const app = new Koa();
+    const router = new Router();
 
-    app.use(async (ctx, next) => {
+    // add kubernetes health endpoint
+    router.get('/health', (ctx) => {
+      logger.silly('health endpoint called');
+      ctx.body = 'ok';
+      ctx.status = 200;
+    });
+
+    // fritzbox subscription endpoint
+    router.all('/', async (ctx) => {
       // Handle the webhook request here
       logger.debug('Received webhook request');
       if (logger.isDebugEnabled()) {
         // log request origin ip address
         logger.debug(`ip: ${ctx.request.ip}`);
+        logger.debug(`method: ${ctx.request.method}`);
         logger.debug(`rawBody: ${JSON.stringify(ctx.request.rawBody)}`);
         logger.debug(`body: ${JSON.stringify(ctx.request.body)}`);
       }
@@ -212,6 +223,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
       ctx.status = 200;
       ctx.body = 'Webhook received successfully';
     });
+    app.use(router.routes()).use(router.allowedMethods());
     this.#service = app.listen(config.get('service.port'));
   }
   async stopService() {
