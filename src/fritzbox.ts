@@ -190,6 +190,15 @@ export class IPV6PrefixSubscription extends EventEmitter {
   }
   async createService() {
     const app = new Koa();
+    // log all requests in debug mode
+    if (logger.isDebugEnabled()) {
+      app.use(async (ctx, next) => {
+        logger.debug(`request received: ${ctx.request.method} ${ctx.request.url}`);
+        logger.debug(`request headers: ${JSON.stringify(ctx.request.headers)}`);
+        logger.debug(`request body: ${JSON.stringify(ctx.request.body)}`);
+        await next();
+      });
+    }
     const router = new Router();
 
     // add kubernetes health endpoint
@@ -222,15 +231,6 @@ export class IPV6PrefixSubscription extends EventEmitter {
 
       ctx.status = 200;
       ctx.body = 'Webhook received successfully';
-    });
-    // catch all requests
-    router.all(/.*/, (ctx) => {
-      logger.debug(`catch all request: ${ctx.request.url}`);
-      logger.debug(`catch all request: ${ctx.request.method}`);
-      logger.debug(`catch all request: ${ctx.request.rawBody}`);
-      logger.debug(`catch all request: ${ctx.request.body}`);
-      ctx.status = 200;
-      ctx.body = 'ok';
     });
     app.use(router.routes()).use(router.allowedMethods());
     this.#service = app.listen(config.get('service.port'));
