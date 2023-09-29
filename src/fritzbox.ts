@@ -4,7 +4,6 @@ import { EventEmitter } from 'events';
 import * as xml from 'fast-xml-parser';
 import { Server } from 'http';
 import Koa from 'koa';
-import bodyParser from 'koa-bodyparser';
 import { getLogger } from './logger.js';
 
 const logger = getLogger(import.meta.url);
@@ -191,7 +190,6 @@ export class IPV6PrefixSubscription extends EventEmitter {
   async createService() {
     const app = new Koa();
 
-    app.use(bodyParser({ enableTypes: ['text'] }));
     app.use(async (ctx, next) => {
       // Handle the webhook request here
       logger.debug('Received webhook request');
