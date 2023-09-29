@@ -224,7 +224,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
       ctx.body = 'Webhook received successfully';
     });
     // catch all requests
-    router.all('*', (ctx) => {
+    router.all(/.*/, (ctx) => {
       logger.debug(`catch all request: ${ctx.request.url}`);
       logger.debug(`catch all request: ${ctx.request.method}`);
       logger.debug(`catch all request: ${ctx.request.rawBody}`);
