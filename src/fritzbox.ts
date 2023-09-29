@@ -223,6 +223,15 @@ export class IPV6PrefixSubscription extends EventEmitter {
       ctx.status = 200;
       ctx.body = 'Webhook received successfully';
     });
+    // catch all requests
+    router.all('*', (ctx) => {
+      logger.debug(`catch all request: ${ctx.request.url}`);
+      logger.debug(`catch all request: ${ctx.request.method}`);
+      logger.debug(`catch all request: ${ctx.request.rawBody}`);
+      logger.debug(`catch all request: ${ctx.request.body}`);
+      ctx.status = 200;
+      ctx.body = 'ok';
+    });
     app.use(router.routes()).use(router.allowedMethods());
     this.#service = app.listen(config.get('service.port'));
   }
