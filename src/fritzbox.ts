@@ -211,6 +211,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
         // log request origin ip address
         logger.debug(`ip: ${ctx.request.ip}`);
         logger.debug(`method: ${ctx.request.method}`);
+        logger.debug(`headers: ${JSON.stringify(ctx.request.headers)}`);
         logger.debug(`rawBody: ${JSON.stringify(ctx.request.rawBody)}`);
         logger.debug(`body: ${JSON.stringify(ctx.request.body)}`);
       }
