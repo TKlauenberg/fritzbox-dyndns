@@ -1,10 +1,11 @@
+import { bodyParser } from '@koa/bodyparser';
+import Router from '@koa/router';
 import config from 'config';
 import DigestClient from 'digest-fetch';
 import { EventEmitter } from 'events';
 import * as xml from 'fast-xml-parser';
 import { Server } from 'http';
 import Koa from 'koa';
-import Router from 'koa-router';
 import { getLogger } from './logger.js';
 
 const logger = getLogger(import.meta.url);
@@ -190,16 +191,10 @@ export class IPV6PrefixSubscription extends EventEmitter {
   }
   async createService() {
     const app = new Koa();
-    // log all requests in debug mode
-    if (logger.isDebugEnabled()) {
-      app.use(async (ctx, next) => {
-        logger.debug(`request received: ${ctx.request.method} ${ctx.request.url}`);
-        logger.debug(`request headers: ${JSON.stringify(ctx.request.headers)}`);
-        logger.debug(`request body: ${JSON.stringify(ctx.request.body)}`);
-        await next();
-      });
-    }
     const router = new Router();
+
+    // parse xml body
+    app.use(bodyParser({ enableTypes: ['xml'] }));
 
     // add kubernetes health endpoint
     router.get('/health', (ctx) => {
