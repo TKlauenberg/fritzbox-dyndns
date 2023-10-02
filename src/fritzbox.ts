@@ -1,5 +1,5 @@
 import { bodyParser } from '@koa/bodyparser';
-import Router from '@koa/router';
+import KoaRouter from '@koa/router';
 import config from 'config';
 import DigestClient from 'digest-fetch';
 import { EventEmitter } from 'events';
@@ -28,6 +28,30 @@ type Property =
   | ExternalIPAddress
   | ExternalIPv6Address
   | PortMappingNumberOfEntries;
+
+
+
+interface ExtendRouter<
+  StateT = Koa.DefaultState,
+  ContextT = Koa.DefaultContext,
+> {
+  /**
+   * HTTP post method
+   */
+  notify<T = {}, U = {}, B = unknown>(
+    name: string,
+    path: string | RegExp,
+    ...middleware: Array<KoaRouter.Middleware<StateT & T, ContextT & U, B>>
+  ): KoaRouter<StateT, ContextT>;
+  /**
+   * HTTP post method
+   */
+  notify<T = {}, U = {}, B = unknown>(
+    path: string | RegExp | Array<string | RegExp>,
+    ...middleware: Array<KoaRouter.Middleware<StateT & T, ContextT & U, B>>
+  ): KoaRouter<StateT, ContextT>;
+}
+type Router = KoaRouter & ExtendRouter;
 
 function propertyIsExternalIPv6Address(
   property: Property | Property[],
@@ -191,10 +215,10 @@ export class IPV6PrefixSubscription extends EventEmitter {
   }
   async createService() {
     const app = new Koa();
-    const router = new Router();
+    const router = new KoaRouter() as Router;
 
     // parse xml body
-    app.use(bodyParser({ enableTypes: ['xml'] }));
+    app.use(bodyParser({ enableTypes: ['xml'], parsedMethods: ['NOTIFY'] }));
 
     // add kubernetes health endpoint
     router.get('/health', (ctx) => {
@@ -204,7 +228,7 @@ export class IPV6PrefixSubscription extends EventEmitter {
     });
 
     // fritzbox subscription endpoint
-    router.all('/', async (ctx) => {
+    router.notify('/', async (ctx) => {
       // Handle the webhook request here
       logger.debug('Received webhook request');
       if (logger.isDebugEnabled()) {
